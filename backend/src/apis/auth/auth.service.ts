@@ -4,6 +4,7 @@ import { UsersService } from '../users/users.service';
 import {
   IAuthServiceGetAccessToken,
   IAuthServiceLogin,
+  IAuthServiceLoginOAuth,
   IAuthServiceRestoreAccessToken,
   IAuthServiceSetRefreshToken,
 } from './interfaces/auth-service.interface';
@@ -38,6 +39,20 @@ export class AuthService {
     // 5. 일치하는 유저도 있고, 비밀번호도 맞았다면?!
     //    => accessToken(=JWT)을 만들어서 브라우저에 전달하기
     return this.getAccessToken({ user });
+  }
+
+  async loginOAuth({ req, res }: IAuthServiceLoginOAuth) {
+    // 1. 회원조회
+    let user = await this.usersService.findOneByEmail({
+      email: req.user.email,
+    });
+
+    // 2. 회원가입이 안돼있다면? 자동회원가입
+    if (!user) user = await this.usersService.create({ ...user });
+
+    // 3. 회원가입이 돼있다면? 로그인(refreshToken, accessToken 만들어서 브라우저에 전송)
+    this.setRefreshToken({ user, res });
+    res.redirect('http://localhost:5500/frontend/social-login.html');
   }
 
   restoreAccessToken({ user }: IAuthServiceRestoreAccessToken): string {

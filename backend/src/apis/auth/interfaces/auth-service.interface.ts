@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { User } from 'src/apis/users/entities/user.entity';
 import { IAuthUser, IContext } from 'src/commons/interfaces/context';
 
@@ -23,4 +23,9 @@ export interface IAuthServiceRestoreAccessToken {
 
 export interface IOAuthUser {
   user: Omit<User, 'id'>;
+}
+
+export interface IAuthServiceLoginOAuth {
+  req: Request & IOAuthUser;
+  res: Response;
 }
